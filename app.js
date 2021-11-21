@@ -10,7 +10,7 @@ const limiter = require('./middlewares/limiter');
 const cors = require('./middlewares/cors');
 
 const app = express();
-const { PORT = 3000, MONGO_SERVER } = process.env;
+const { PORT = 3000, MONGO_SERVER = 'mongodb://localhost:27017/moviesdb' } = process.env;
 
 app.use(cors);
 

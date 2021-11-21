@@ -1,8 +1,8 @@
 const allowedCors = [
-  'https://api.mesto.semikozova.nomoredomains.rocks',
-  'http://api.mesto.semikozova.nomoredomains.rocks',
-  'https://mesto.semikozova.nomoredomains.rocks',
-  'http://mesto.semikozova.nomoredomains.rocks',
+  'https://api.diploma.semikozova.nomoredomains.rocks',
+  'http://api.diploma.semikozova.nomoredomains.rocks',
+  'https://diploma.semikozova.nomoredomains.rocks',
+  'http://diploma.semikozova.nomoredomains.rocks',
   'https://localhost:3001',
   'https://localhost:3000',
   'http://localhost:3001',
