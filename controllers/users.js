@@ -6,21 +6,21 @@ const NotFoundError = require('../errors/not-found-error');
 const ConflictError = require('../errors/conflict-error');
 const NotAuthError = require('../errors/not-auth-error');
 const { JWT_SECRET } = require('../utils/config');
-
-const { NODE_ENV } = process.env;
+const {
+  INVALID_AUTH_DATA_TEXT, NOT_FOUND_USER_TEXT, INVALID_DATA_TEXT, CONFLICT_EMAIL_ERR_TEXT,
+} = require('../utils/constants');
 
 const login = (req, res, next) => {
   const { password, email } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       return res.send({ token });
     })
     .catch(() => {
-      throw new NotAuthError('Неверные почта или пароль');
-    })
-    .catch(next);
+      next(new NotAuthError(INVALID_AUTH_DATA_TEXT));
+    });
 };
 
 const getUser = (req, res, next) => {
@@ -29,14 +29,14 @@ const getUser = (req, res, next) => {
       if (user) {
         return res.status(200).send(user);
       }
-      throw new NotFoundError('Пользователь с таким id не найден');
+      throw new NotFoundError(NOT_FOUND_USER_TEXT);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } next(err);
-    })
-    .catch(next);
+        next(new BadRequestError(INVALID_DATA_TEXT));
+      }
+      return next(err);
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -54,13 +54,13 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        next(new BadRequestError(INVALID_DATA_TEXT));
       }
-      if (err.code === 11000 && err.name === 'MongoServerError') {
-        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+      if (err.code === 11000) {
+        next(new ConflictError(CONFLICT_EMAIL_ERR_TEXT));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 const updateUser = (req, res, next) => {
@@ -74,14 +74,14 @@ const updateUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+      if (err.message === 'ValidationError') {
+        next(new BadRequestError(INVALID_DATA_TEXT));
       }
-      if (err.code === 11000 && err.name === 'MongoServerError') {
-        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+      if (err.code === 11000) {
+        next(new ConflictError(CONFLICT_EMAIL_ERR_TEXT));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports = {

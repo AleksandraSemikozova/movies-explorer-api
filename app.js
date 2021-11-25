@@ -8,14 +8,16 @@ const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const limiter = require('./middlewares/limiter');
 const cors = require('./middlewares/cors');
+const { MONGO_SERVER } = require('./utils/config');
 
 const app = express();
-const { PORT = 3000, MONGO_SERVER = 'mongodb://localhost:27017/moviesdb' } = process.env;
+const { PORT = 3001 } = process.env;
 
 app.use(cors);
 
 mongoose.connect(MONGO_SERVER, {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 app.use(requestLogger);
@@ -27,6 +29,4 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log('App listen express');
-});
+app.listen(PORT);
